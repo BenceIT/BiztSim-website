@@ -1,4 +1,5 @@
-name: Build and deploy
+name: Build and Deploy Hugoplate
+
 on:
   push:
     branches:
@@ -23,50 +24,53 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.154.4
-      NODE_VERSION: 24.12.0
-      TZ: Europe/Budapest
+      NODE_VERSION: 20  # A Hugoplate stabilabban fut LTS verziókon (pl. 20 vagy 22)
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: recursive # Fontos a Hugo modulok/témák miatt
           fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm' # Automatikusan gyorsítja az npm installt
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: ${{ env.HUGO_VERSION }}
-          extended: true # A Hugoplate-nek kötelező az Extended verzió (SASS/SCSS miatt)
+          extended: true # KÖTELEZŐ a Hugoplate-hez (Sass/SCSS miatt)
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install Node dependencies
         run: |
+          # Ha van lock fájl, tiszta telepítést végez, ha nincs, sima installt
           if [ -f package-lock.json ]; then
             npm ci
           else
             npm install
           fi
 
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: Build with Hugo
+        env:
+          # Ez biztosítja, hogy a PostCSS/Tailwind a production beállításokkal fusson
+          HUGO_ENVIRONMENT: production
+          NODE_ENV: production
         run: |
           hugo \
             --gc \
             --minify \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
-        env:
-          NODE_ENV: production
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
