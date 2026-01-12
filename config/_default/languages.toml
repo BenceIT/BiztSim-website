@@ -1,0 +1,6 @@
+################ English language ##################
+[hu]
+languageName = "Hu"
+languageCode = "hu-hu"
+contentDir = "content/magyar"
+weight = 1
