@@ -1,0 +1,39 @@
+name: Auto Pull Request from Develop
+
+on:
+  push:
+    branches:
+      - develop 
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make pull request from develop to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_PR=$(gh pr list --head develop --base main --state open --json url --jq '.[0].url')
+
+          if [ -z "$EXISTING_PR" ]; then
+            echo "Create request."
+            
+            gh pr create \
+              --base main \
+              --head develop \
+              --title "Auto PR: Develop -> Main" \
+              --assignee "torokbi" \
+              --body "This is an automatically generated Pull Request."
+            
+            echo "Request created"
+          else
+            echo "Open request already exists: $EXISTING_PR"
+          fi
