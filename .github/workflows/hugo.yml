@@ -1,4 +1,4 @@
-name: Build and Deploy Hugoplate
+name: Build and Deploy Website
 
 on:
   push:
@@ -24,20 +24,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HUGO_VERSION: 0.154.4
-      NODE_VERSION: 20  # A Hugoplate stabilabban fut LTS verziókon (pl. 20 vagy 22)
+      NODE_VERSION: 20 
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive # Fontos a Hugo modulok/témák miatt
+          submodules: recursive
           fetch-depth: 0
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: ${{ env.HUGO_VERSION }}
-          extended: true # KÖTELEZŐ a Hugoplate-hez (Sass/SCSS miatt)
+          extended: true 
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -60,7 +60,6 @@ jobs:
 
       - name: Build with Hugo
         env:
-          # Ez biztosítja, hogy a PostCSS/Tailwind a production beállításokkal fusson
           HUGO_ENVIRONMENT: production
           NODE_ENV: production
         run: |
