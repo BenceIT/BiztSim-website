@@ -30,7 +30,6 @@ jobs:
               --base main \
               --head develop \
               --title "Auto PR: Develop -> Main" \
-              --assignee "torokbi" \
               --body "This is an automatically generated Pull Request."
             
             echo "Request created"
